@@ -32,6 +32,10 @@ const Display = ()=>{
                         <Route path="/search" 
                             element={<Search/>}
                         />
+
+
+
+                        
                     </Routes>
                 </div>
             </div>
