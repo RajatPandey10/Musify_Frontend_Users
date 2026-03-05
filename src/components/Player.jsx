@@ -37,7 +37,7 @@ const Player = ()=>{
                         />
                     ):(
                         <Play 
-                            onClick={pause}
+                            onClick={play}
                             className='w-4 h-4 cursor-pointer text-white hover:text-green-500 transition-colors'
                         />
 

@@ -34,27 +34,50 @@ export const PlayerContextProvider = ({children})=>{
     const seekBar = useRef();
 
     const play = ()=>{
-
+        audioRef.current.play();
+        setPlayStatus(true);
     }
 
     const pause = ()=>{
-
+        audioRef.current.pause();
+        setPlayStatus(false);
     }
 
-    const playWithId = ()=>{
+    const playWithId = async (id)=>{
+        songsData.map(item=>{
+            if(id === item._id){
+                setTrack(item);
+            }
+        });
+
+        await audioRef.current.play();
+        setPlayStatus(true);
 
     }
 
     const previous = async ()=>{
-
+        songsData.map(async (item,index)=>{
+            if(track._id === item._id && index > 0){
+                await setTrack(songsData[index-1]);
+                await audioRef.current.play();
+                setPlayStatus(true);
+            }
+        })
     }
 
     const next = async ()=>{
-
+        songsData.map(async (item,index)=>{
+            if(track._id === item._id && index < songsData.length -1 ){
+                await setTrack(songsData[index+1]);
+                await audioRef.current.play();
+                setPlayStatus(true);
+            }
+        })
     }
 
-    const seeKSong = async ()=>{
-
+    const seekSong = (e) => {
+        const percent = e.nativeEvent.offsetX / seekBg.current.offsetWidth;
+        audioRef.current.currentTime = percent * audioRef.current.duration;
     }
 
     
@@ -96,7 +119,7 @@ export const PlayerContextProvider = ({children})=>{
         track,setTrack,
         playStatus,setPlayStatus,
         time,setTime,
-        play,pause,playWithId,previous,next,seeKSong
+        play,pause,playWithId,previous,next,seekSong
     }
 
     useEffect(()=>{
@@ -118,17 +141,36 @@ export const PlayerContextProvider = ({children})=>{
                 seekBar.current.style.width = Math.floor(progress) + "%";
                 setTime({
                     currentTime:{
-                        second: Math.floor(audio.currentTime %60),
+                        second: Math.floor(audio.currentTime % 60),
                         minute: Math.floor(audio.currentTime /60)
                     },
                     totalTime:{
-                        second: Math.floor(audio.duration %60),
+                        second: Math.floor(audio.duration % 60),
                         minute: Math.floor(audio.duration /60),
                     }
                 });
             }
         };
-    })
+
+        const handleLoadedMetadata = ()=>{
+            if(seekBar.current){
+                seekBar.current.style.width = '0%';
+            }
+        };
+
+        // add event listeners
+
+        audio.addEventListener('timeupdate',updateSeekBar);
+        audio.addEventListener('loadedmetadata',handleLoadedMetadata);
+
+        // cleanup function
+
+        return()=>{
+            audio.removeEventListener('timeupdate',updateSeekBar);
+            audio.removeEventListener('loadedmetadata',handleLoadedMetadata);
+        };
+        
+    },[track]);
 
 
     return(
