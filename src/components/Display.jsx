@@ -3,6 +3,8 @@ import DisplayHome from './DisplayHome';
 import DisplayAlbum from './DisplayAlbum';
 import Search from './Search';
 import Navbar from './Navbar.jsx';
+import UserProfile from './UserProfile.jsx';
+
 import {useContext, useEffect, useRef} from 'react';
 import {PlayerContext} from '../context/PlayerContext.jsx';
 
@@ -11,6 +13,10 @@ const Display = ()=>{
     const {albumsData} = useContext(PlayerContext);
     const displayRef = useRef();
     const location = useLocation();
+
+
+    
+
     const isAlbum = location.pathname.includes("album");
     
     const albumId = isAlbum ? location.pathname.split("/").pop(): "";
@@ -48,6 +54,10 @@ const Display = ()=>{
                         />
                         <Route path="/search" 
                             element={<Search/>}
+                        />
+
+                        <Route path="/userProfile"
+                            element = {<UserProfile/>}  
                         />
 
                     </Routes>

@@ -2,7 +2,7 @@ import {createContext,useContext,useState,useEffect} from 'react';
 
 
 import axios from "axios";
-export const API_BASE_URL = "https://musify-backend-2ofg.onrender.com";
+export const API_BASE_URL = "http://localhost:8080";
 
 export const AuthContext = createContext();
 
@@ -21,6 +21,7 @@ export const AuthProvider = ({children})=>{
     const [user,setUser] = useState(null);
     const [token,setToken] = useState(localStorage.getItem("userToken"));
     const [loading,setLoading]=useState(true);
+    const [userProfile,setUserProfile] = useState(null);
     
     useEffect(()=>{
         
@@ -62,6 +63,7 @@ export const AuthProvider = ({children})=>{
     const login = async (email,password)=>{
         try{
             const response = await axios.post(`${API_BASE_URL}/api/auth/login`,{email,password,portal:"user"});
+            
             if(response.status === 200){
                 setToken(response.data.token);
                 setUser({
@@ -109,6 +111,32 @@ export const AuthProvider = ({children})=>{
         return token?{Authorization: `Bearer ${token}`} : {};
     }
 
+    const getProfile = async () => {
+    try {
+        const response = await axios.get(
+            `${API_BASE_URL}/api/auth/profile/${user.email}`,
+            {
+                headers: getAuthHeaders()
+            }
+        );
+
+        setUserProfile(response.data);
+        
+
+        return {
+            success: true,
+            data: response.data
+        };
+
+        } catch (error) {
+            return {
+                success: false,
+                message: error.response?.data || 'Network error. Please try again later.'
+            };
+        }
+    }
+
+    
 
 
     const contextValue={
@@ -119,7 +147,9 @@ export const AuthProvider = ({children})=>{
         logout,
         user,
         token,
-        getAuthHeaders
+        getAuthHeaders,
+        getProfile,
+        userProfile
     }
 
     return(

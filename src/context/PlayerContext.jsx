@@ -8,6 +8,7 @@ export const PlayerContext = createContext();
 
 
 
+
 export const PlayerContextProvider = ({children})=>{
 
 
@@ -26,34 +27,40 @@ export const PlayerContextProvider = ({children})=>{
         }
     });
 
-    const {user,token, getAuthHeaders} = useAuth();
+    const {user,token, getAuthHeaders,userProfile,getProfile} = useAuth();
     
+    useEffect(() => {
+        if (user && token) {
+            getProfile();
+        }
+    }, [user, token]);
 
+    const subscription = userProfile?.subscriptionPlan ?? 'basic';
+    
     const audioRef = useRef();
     const seekBg = useRef();
     const seekBar = useRef();
 
-    const play = ()=>{
+    const play = () => {
         audioRef.current.play();
         setPlayStatus(true);
-    }
+    };
 
     const pause = ()=>{
         audioRef.current.pause();
         setPlayStatus(false);
     }
 
-    const playWithId = async (id)=>{
-        songsData.map(item=>{
-            if(id === item._id){
-                setTrack(item);
-            }
-        });
+   const playWithId = async (id) => {
+        const selectedSong = songsData.find(item => item._id === id);
 
-        await audioRef.current.play();
-        setPlayStatus(true);
-
+        if (selectedSong) {
+            setTrack(selectedSong);
+            await audioRef.current.play();
+            setPlayStatus(true);
+        }
     }
+
 
     const previous = async ()=>{
         songsData.map(async (item,index)=>{
@@ -110,6 +117,9 @@ export const PlayerContextProvider = ({children})=>{
     }
 
     
+
+
+    
     const contextValue={
         getSongsData,
         getAlbumsData,
@@ -129,6 +139,15 @@ export const PlayerContextProvider = ({children})=>{
         }
 
     },[user, token]);
+
+    useEffect(() => {
+        if (track && audioRef.current) {
+            audioRef.current.src = track.file; // or track.audio (check this!)
+            audioRef.current.play()
+                .then(() => setPlayStatus(true))
+                .catch(err => console.log("Play error:", err));
+        }
+    }, [track]);
 
     // setup audio event listeners
     useEffect(()=>{
