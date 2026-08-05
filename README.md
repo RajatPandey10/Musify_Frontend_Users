@@ -123,8 +123,8 @@ Musify_Frontend_Users
 ## 🔗 Related Repositories
 
 ### Admin Panel
+https://superb-wisp-963d2c.netlify.app/
 
-https://superb-wisp-963d2c.netlify.app/login
 
 ---
 
